@@ -74,6 +74,18 @@ type SearchResultItem struct {
 	Title []RichText `json:"title"`
 }
 
+// A SearchFilter represents the filter that is used for search.
+type SearchFilter struct {
+	Value    string `json:"value"`
+	Property string `json:"property"`
+}
+
+// A SearchRequest represents the request body of a search operation.
+type SearchRequest struct {
+	Query  string       `json:"query"`
+	Filter SearchFilter `json:"filter"`
+}
+
 // A SearchResponse represents the response of a search operation.
 type SearchResponse struct {
 	Results []SearchResultItem `json:"results"`
