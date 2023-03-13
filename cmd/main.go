@@ -6,15 +6,20 @@ import (
 	"github.com/adrg/xdg"
 	"github.com/alecthomas/kong"
 	"github.com/merajsahebdar/bookmarkmanager/internal/app/cfg"
-	"github.com/merajsahebdar/bookmarkmanager/internal/cmd/cli"
+	"github.com/merajsahebdar/bookmarkmanager/internal/app/manage"
 )
 
 const (
 	appBundleID = "com.merajsahebdar.apps.bookmarkmanager"
 )
 
+var cli struct {
+	Debug  bool           `help:"Enable the debug mode."`
+	Manage manage.Command `cmd:"manage" help:"Start the bookmark manager."`
+}
+
 func main() {
-	ctx := kong.Parse(&cli.CLI)
+	ctx := kong.Parse(&cli)
 
 	// Prepare the data home directory...
 	dataHomePath := xdg.DataHome + "/" + appBundleID
@@ -27,7 +32,7 @@ func main() {
 	}
 
 	if err := ctx.Run(&cfg.Context{
-		Debug:        cli.CLI.Debug,
+		Debug:        cli.Debug,
 		DataHomePath: dataHomePath,
 	}); err != nil {
 		ctx.FatalIfErrorf(err)
