@@ -1,22 +1,34 @@
 package main
 
 import (
-	"context"
-	"log"
+	"os"
 
-	"github.com/merajsahebdar/bookmarkmanager/pkg/notion"
+	"github.com/adrg/xdg"
+	"github.com/alecthomas/kong"
+	"github.com/merajsahebdar/bookmarkmanager/internal/cmd/cli"
+)
+
+const (
+	appBundleID = "com.merajsahebdar.apps.bookmarkmanager"
 )
 
 func main() {
-	client := notion.New()
+	ctx := kong.Parse(&cli.CLI)
 
-	searchResponse, err := client.Search(context.Background(), notion.SearchRequest{
-		Query:  "Bookmark List",
-		Filter: notion.SearchFilter{Value: "database", Property: "object"},
-	})
-	if err != nil {
-		panic(err)
+	// Prepare the data home directory...
+	dataHomePath := xdg.DataHome + "/" + appBundleID
+	if f, err := os.Stat(dataHomePath); os.IsNotExist(err) {
+		if createErr := os.Mkdir(dataHomePath, 0755); createErr != nil {
+			ctx.Fatalf("failed to create the data home: %s", createErr.Error())
+		}
+	} else if !f.IsDir() {
+		ctx.Fatalf("the data home is already occupied")
 	}
 
-	log.Printf("%v\n", searchResponse)
+	if err := ctx.Run(&cli.Context{
+		Debug:        cli.CLI.Debug,
+		DataHomePath: dataHomePath,
+	}); err != nil {
+		ctx.FatalIfErrorf(err)
+	}
 }
