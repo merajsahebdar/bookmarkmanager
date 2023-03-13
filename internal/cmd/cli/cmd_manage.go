@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 
+	"github.com/merajsahebdar/bookmarkmanager/internal/app/cfg"
 	"github.com/merajsahebdar/bookmarkmanager/pkg/zapcfg"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
@@ -13,16 +14,12 @@ import (
 type ManageCommand struct{}
 
 // Run runs the command.
-func (cmd *ManageCommand) Run(cc *Context) error {
+func (cmd *ManageCommand) Run(cc *cfg.Context) error {
 	fx.New(
 		fx.Provide(
-			func() (*zap.Logger, error) {
-				logger, err := zapcfg.NewDevelopment(cc.Debug, cc.DataHomePath+"/log").Build()
-				if err != nil {
-					return nil, fmt.Errorf("failed to build logger: %w", err)
-				}
-
-				return logger, nil
+			newLogger,
+			func() *cfg.Context {
+				return cc
 			},
 		),
 		fx.WithLogger(
@@ -33,4 +30,13 @@ func (cmd *ManageCommand) Run(cc *Context) error {
 	).Run()
 
 	return nil
+}
+
+func newLogger(cc *cfg.Context) (*zap.Logger, error) {
+	logger, err := zapcfg.NewDevelopment(cc.Debug, cc.DataHomePath+"/log").Build()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build logger: %w", err)
+	}
+
+	return logger, nil
 }

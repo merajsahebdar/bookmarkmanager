@@ -5,6 +5,7 @@ import (
 
 	"github.com/adrg/xdg"
 	"github.com/alecthomas/kong"
+	"github.com/merajsahebdar/bookmarkmanager/internal/app/cfg"
 	"github.com/merajsahebdar/bookmarkmanager/internal/cmd/cli"
 )
 
@@ -25,7 +26,7 @@ func main() {
 		ctx.Fatalf("the data home is already occupied")
 	}
 
-	if err := ctx.Run(&cli.Context{
+	if err := ctx.Run(&cfg.Context{
 		Debug:        cli.CLI.Debug,
 		DataHomePath: dataHomePath,
 	}); err != nil {
